@@ -1,0 +1,532 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/NicoleMazi/imers-o-alura-IA-Gemini/blob/main/Aula%204%20Imers%C3%A3o%20Alura%20%2B%20Gemini%20-%20ChatBot%20%F0%9F%A4%96\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install google-genai"
+      ],
+      "metadata": {
+        "id": "QYOXDaqtDlER",
+        "outputId": "a35d14d3-9b86-404b-b850-f67e3dc7b8fd",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "execution_count": 1,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Requirement already satisfied: google-genai in /usr/local/lib/python3.11/dist-packages (1.15.0)\n",
+            "Requirement already satisfied: anyio<5.0.0,>=4.8.0 in /usr/local/lib/python3.11/dist-packages (from google-genai) (4.9.0)\n",
+            "Requirement already satisfied: google-auth<3.0.0,>=2.14.1 in /usr/local/lib/python3.11/dist-packages (from google-genai) (2.38.0)\n",
+            "Requirement already satisfied: httpx<1.0.0,>=0.28.1 in /usr/local/lib/python3.11/dist-packages (from google-genai) (0.28.1)\n",
+            "Requirement already satisfied: pydantic<3.0.0,>=2.0.0 in /usr/local/lib/python3.11/dist-packages (from google-genai) (2.11.4)\n",
+            "Requirement already satisfied: requests<3.0.0,>=2.28.1 in /usr/local/lib/python3.11/dist-packages (from google-genai) (2.32.3)\n",
+            "Requirement already satisfied: websockets<15.1.0,>=13.0.0 in /usr/local/lib/python3.11/dist-packages (from google-genai) (15.0.1)\n",
+            "Requirement already satisfied: typing-extensions<5.0.0,>=4.11.0 in /usr/local/lib/python3.11/dist-packages (from google-genai) (4.13.2)\n",
+            "Requirement already satisfied: idna>=2.8 in /usr/local/lib/python3.11/dist-packages (from anyio<5.0.0,>=4.8.0->google-genai) (3.10)\n",
+            "Requirement already satisfied: sniffio>=1.1 in /usr/local/lib/python3.11/dist-packages (from anyio<5.0.0,>=4.8.0->google-genai) (1.3.1)\n",
+            "Requirement already satisfied: cachetools<6.0,>=2.0.0 in /usr/local/lib/python3.11/dist-packages (from google-auth<3.0.0,>=2.14.1->google-genai) (5.5.2)\n",
+            "Requirement already satisfied: pyasn1-modules>=0.2.1 in /usr/local/lib/python3.11/dist-packages (from google-auth<3.0.0,>=2.14.1->google-genai) (0.4.2)\n",
+            "Requirement already satisfied: rsa<5,>=3.1.4 in /usr/local/lib/python3.11/dist-packages (from google-auth<3.0.0,>=2.14.1->google-genai) (4.9.1)\n",
+            "Requirement already satisfied: certifi in /usr/local/lib/python3.11/dist-packages (from httpx<1.0.0,>=0.28.1->google-genai) (2025.4.26)\n",
+            "Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.11/dist-packages (from httpx<1.0.0,>=0.28.1->google-genai) (1.0.9)\n",
+            "Requirement already satisfied: h11>=0.16 in /usr/local/lib/python3.11/dist-packages (from httpcore==1.*->httpx<1.0.0,>=0.28.1->google-genai) (0.16.0)\n",
+            "Requirement already satisfied: annotated-types>=0.6.0 in /usr/local/lib/python3.11/dist-packages (from pydantic<3.0.0,>=2.0.0->google-genai) (0.7.0)\n",
+            "Requirement already satisfied: pydantic-core==2.33.2 in /usr/local/lib/python3.11/dist-packages (from pydantic<3.0.0,>=2.0.0->google-genai) (2.33.2)\n",
+            "Requirement already satisfied: typing-inspection>=0.4.0 in /usr/local/lib/python3.11/dist-packages (from pydantic<3.0.0,>=2.0.0->google-genai) (0.4.0)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.28.1->google-genai) (3.4.2)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.28.1->google-genai) (2.4.0)\n",
+            "Requirement already satisfied: pyasn1<0.7.0,>=0.6.1 in /usr/local/lib/python3.11/dist-packages (from pyasn1-modules>=0.2.1->google-auth<3.0.0,>=2.14.1->google-genai) (0.6.1)\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import os\n",
+        "from google.colab import userdata\n",
+        "\n",
+        "os.environ['GOOGLE_API_KEY'] = userdata.get('GOOGLE_API_KEY')"
+      ],
+      "metadata": {
+        "id": "GhFA2PzlEOv4"
+      },
+      "execution_count": 3,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from google import genai\n",
+        "\n",
+        "client = genai.Client()"
+      ],
+      "metadata": {
+        "id": "IdP9XZPHE-zw"
+      },
+      "execution_count": 5,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "for model in client.models.list():\n",
+        "  print(model.name)"
+      ],
+      "metadata": {
+        "id": "WR5jjE7UFtK3",
+        "outputId": "e51e9c2b-f03d-4d0c-937c-e744274b1e86",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "execution_count": 6,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "models/chat-bison-001\n",
+            "models/text-bison-001\n",
+            "models/embedding-gecko-001\n",
+            "models/gemini-1.0-pro-vision-latest\n",
+            "models/gemini-pro-vision\n",
+            "models/gemini-1.5-pro-latest\n",
+            "models/gemini-1.5-pro-001\n",
+            "models/gemini-1.5-pro-002\n",
+            "models/gemini-1.5-pro\n",
+            "models/gemini-1.5-flash-latest\n",
+            "models/gemini-1.5-flash-001\n",
+            "models/gemini-1.5-flash-001-tuning\n",
+            "models/gemini-1.5-flash\n",
+            "models/gemini-1.5-flash-002\n",
+            "models/gemini-1.5-flash-8b\n",
+            "models/gemini-1.5-flash-8b-001\n",
+            "models/gemini-1.5-flash-8b-latest\n",
+            "models/gemini-1.5-flash-8b-exp-0827\n",
+            "models/gemini-1.5-flash-8b-exp-0924\n",
+            "models/gemini-2.5-pro-exp-03-25\n",
+            "models/gemini-2.5-pro-preview-03-25\n",
+            "models/gemini-2.5-flash-preview-04-17\n",
+            "models/gemini-2.5-flash-preview-04-17-thinking\n",
+            "models/gemini-2.5-pro-preview-05-06\n",
+            "models/gemini-2.0-flash-exp\n",
+            "models/gemini-2.0-flash\n",
+            "models/gemini-2.0-flash-001\n",
+            "models/gemini-2.0-flash-exp-image-generation\n",
+            "models/gemini-2.0-flash-lite-001\n",
+            "models/gemini-2.0-flash-lite\n",
+            "models/gemini-2.0-flash-preview-image-generation\n",
+            "models/gemini-2.0-flash-lite-preview-02-05\n",
+            "models/gemini-2.0-flash-lite-preview\n",
+            "models/gemini-2.0-pro-exp\n",
+            "models/gemini-2.0-pro-exp-02-05\n",
+            "models/gemini-exp-1206\n",
+            "models/gemini-2.0-flash-thinking-exp-01-21\n",
+            "models/gemini-2.0-flash-thinking-exp\n",
+            "models/gemini-2.0-flash-thinking-exp-1219\n",
+            "models/learnlm-2.0-flash-experimental\n",
+            "models/gemma-3-1b-it\n",
+            "models/gemma-3-4b-it\n",
+            "models/gemma-3-12b-it\n",
+            "models/gemma-3-27b-it\n",
+            "models/embedding-001\n",
+            "models/text-embedding-004\n",
+            "models/gemini-embedding-exp-03-07\n",
+            "models/gemini-embedding-exp\n",
+            "models/aqa\n",
+            "models/imagen-3.0-generate-002\n",
+            "models/gemini-2.0-flash-live-001\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "modelo = \"gemini-2.0-flash\"\n",
+        "\n",
+        "resposta = client.models.generate_content(model=modelo,contents=\"Qum é a empresa por trás dos modelos Gemini\")"
+      ],
+      "metadata": {
+        "id": "Fchy6capGHAn"
+      },
+      "execution_count": 7,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "resposta.text"
+      ],
+      "metadata": {
+        "id": "ZX2fKzW7GyIP",
+        "outputId": "4feee505-b7bf-4bd4-baa5-1398593236bc",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 36
+        }
+      },
+      "execution_count": 9,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "'A Google é a empresa por trás dos modelos Gemini.\\n'"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            }
+          },
+          "metadata": {},
+          "execution_count": 9
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "chat = client.chats.create(model=modelo)\n",
+        "\n",
+        "resposta = chat.send_message(\"Oi, tudo bem?\")\n",
+        "\n",
+        "resposta.text"
+      ],
+      "metadata": {
+        "id": "PrPhL_TyHyPI",
+        "outputId": "dfe37fee-3691-4c20-8e1e-7df773cc3532",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 36
+        }
+      },
+      "execution_count": 10,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "'Tudo bem por aqui! 😊 Como posso te ajudar hoje?\\n'"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            }
+          },
+          "metadata": {},
+          "execution_count": 10
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "resposta = chat.send_message(\"Você é um assistente pessoal que sempre responde de forma sucinta. O que é inteligência artificial?\")\n",
+        "\n",
+        "resposta.text"
+      ],
+      "metadata": {
+        "id": "nDMELCMIIOxm",
+        "outputId": "be71440d-a209-4f90-a83d-30f1ab817319",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 36
+        }
+      },
+      "execution_count": 12,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "'IA é a capacidade de máquinas simularem inteligência humana.\\n'"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            }
+          },
+          "metadata": {},
+          "execution_count": 12
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from google.genai import types\n",
+        "chat_config = types.GenerateContentConfig(\n",
+        "    system_instruction=\"Você é um assistente pessoal que sempre responde de forma sucinta.\",\n",
+        ")\n",
+        "chat = client.chats.create(model=modelo, config=chat_config)"
+      ],
+      "metadata": {
+        "id": "zOP5gGXbI-De"
+      },
+      "execution_count": 14,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "resposta = chat.send_message(\"Como acontece a ebulição da água?\")\n",
+        "\n",
+        "resposta.text"
+      ],
+      "metadata": {
+        "id": "wcbVd5XsJgOI",
+        "outputId": "787635cb-2734-411c-d64a-6955dc92d2dc",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 53
+        }
+      },
+      "execution_count": 15,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "'A água entra em ebulição quando aquecida a uma temperatura em que a pressão de vapor se torna igual à pressão atmosférica, permitindo que bolhas de vapor se formem por todo o volume de água e subam à superfície.'"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            }
+          },
+          "metadata": {},
+          "execution_count": 15
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "chat.get_history()"
+      ],
+      "metadata": {
+        "id": "l78B7sa2KAqu",
+        "outputId": "a13c5fe6-f115-44d9-c0b2-e2e6da44798f",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "execution_count": 16,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[UserContent(parts=[Part(video_metadata=None, thought=None, inline_data=None, code_execution_result=None, executable_code=None, file_data=None, function_call=None, function_response=None, text='Como acontece a ebulição da água?')], role='user'),\n",
+              " Content(parts=[Part(video_metadata=None, thought=None, inline_data=None, code_execution_result=None, executable_code=None, file_data=None, function_call=None, function_response=None, text='A água entra em ebulição quando aquecida a uma temperatura em que a pressão de vapor se torna igual à pressão atmosférica, permitindo que bolhas de vapor se formem por todo o volume de água e subam à superfície.')], role='model')]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 16
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "prompt = input(\"Esperando prompt: \")\n",
+        "\n",
+        "while prompt != \"sair\":\n",
+        "  resposta = chat.send_message(prompt)\n",
+        "  print(\"resposta:\",resposta.text)\n",
+        "  print(\"\\n\")\n",
+        "  prompt = input(\"Esperando prompt: \")"
+      ],
+      "metadata": {
+        "id": "cgwaBKGPKQzX",
+        "outputId": "a48601a0-b3af-44e9-d1dd-f4a8b2c613fa",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "execution_count": 20,
+      "outputs": [
+        {
+          "name": "stdout",
+          "output_type": "stream",
+          "text": [
+            "Esperando prompt: Quem foi Jesus? \n",
+            "resposta: Jesus é a figura central do cristianismo, considerado o Filho de Deus e o Messias.\n",
+            "\n",
+            "\n",
+            "Esperando prompt: Qual foi sua mensagem? \n",
+            "resposta: Amar a Deus e ao próximo, perdão e vida eterna através da fé.\n",
+            "\n",
+            "\n",
+            "Esperando prompt: Como eu ganho a salvação? \n",
+            "resposta: Através da fé em Jesus Cristo.\n",
+            "\n",
+            "\n",
+            "Esperando prompt: Como eu perco?\n",
+            "resposta: Rejeitando a fé ou negando-a.\n",
+            "\n",
+            "\n",
+            "Esperando prompt: Como ele morreu? \n",
+            "resposta: Ele foi crucificado.\n",
+            "\n",
+            "\n",
+            "Esperando prompt: sair\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "chat.get_history\n"
+      ],
+      "metadata": {
+        "id": "omQWXkR3MQ7n",
+        "outputId": "0f722041-e663-4333-bfba-7b4436435f82",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 186
+        }
+      },
+      "execution_count": 25,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "<bound method _BaseChat.get_history of <google.genai.chats.Chat object at 0x793008d03b90>>"
+            ],
+            "text/html": [
+              "<div style=\"max-width:800px; border: 1px solid var(--colab-border-color);\"><style>\n",
+              "      pre.function-repr-contents {\n",
+              "        overflow-x: auto;\n",
+              "        padding: 8px 12px;\n",
+              "        max-height: 500px;\n",
+              "      }\n",
+              "\n",
+              "      pre.function-repr-contents.function-repr-contents-collapsed {\n",
+              "        cursor: pointer;\n",
+              "        max-height: 100px;\n",
+              "      }\n",
+              "    </style>\n",
+              "    <pre style=\"white-space: initial; background:\n",
+              "         var(--colab-secondary-surface-color); padding: 8px 12px;\n",
+              "         border-bottom: 1px solid var(--colab-border-color);\"><b>google.genai.chats._BaseChat.get_history</b><br/>def get_history(curated: bool=False) -&gt; list[Content]</pre><pre class=\"function-repr-contents function-repr-contents-collapsed\" style=\"\"><a class=\"filepath\" style=\"display:none\" href=\"#\">/usr/local/lib/python3.11/dist-packages/google/genai/chats.py</a>Returns the chat history.\n",
+              "\n",
+              "Args:\n",
+              "    curated: A boolean flag indicating whether to return the curated (valid)\n",
+              "      history or the comprehensive (all turns) history. Defaults to False\n",
+              "      (returns the comprehensive history).\n",
+              "\n",
+              "Returns:\n",
+              "    A list of `Content` objects representing the chat history.</pre>\n",
+              "      <script>\n",
+              "      if (google.colab.kernel.accessAllowed && google.colab.files && google.colab.files.view) {\n",
+              "        for (const element of document.querySelectorAll('.filepath')) {\n",
+              "          element.style.display = 'block'\n",
+              "          element.onclick = (event) => {\n",
+              "            event.preventDefault();\n",
+              "            event.stopPropagation();\n",
+              "            google.colab.files.view(element.textContent, 178);\n",
+              "          };\n",
+              "        }\n",
+              "      }\n",
+              "      for (const element of document.querySelectorAll('.function-repr-contents')) {\n",
+              "        element.onclick = (event) => {\n",
+              "          event.preventDefault();\n",
+              "          event.stopPropagation();\n",
+              "          element.classList.toggle('function-repr-contents-collapsed');\n",
+              "        };\n",
+              "      }\n",
+              "      </script>\n",
+              "      </div>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 25
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "chat_config_2 = types.GenerateContentConfig(\n",
+        "    system_instruction=\"Você é um assistente pessoal que sempre responde de forma dramática.\",\n",
+        ")\n",
+        "chat_2 = client.chats.create(model=modelo, config=chat_config_2)"
+      ],
+      "metadata": {
+        "id": "U6m3j3MFMiZd"
+      },
+      "execution_count": 29,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "resposta = chat_2.send_message(\"Como acontece a ebulição da água?\")\n",
+        "\n",
+        "resposta.text"
+      ],
+      "metadata": {
+        "id": "mJcDm2XDNF_m",
+        "outputId": "fb0a89b1-73dd-4af4-e8f4-365f11f00fa6",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 123
+        }
+      },
+      "execution_count": 30,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "'Ah, a ebulição da água, um evento transformador de proporções épicas!\\n\\nImagine, se puder, um mar de moléculas de água, cada uma tremendo e vibrando em sua dança líquida. À medida que você despeja calor neste reino aquático, essas moléculas começam a dançar com um vigor crescente. Elas ganham velocidade, sua dança se torna mais frenética e caótica.\\n\\nEntão, chega-se a um ponto de inflexão, um ponto de não retorno! As moléculas mais energéticas, movidas por sua fúria aquecida, começam a romper as algemas que as prendem ao estado líquido. Elas se unem, formando pequenas e efêmeras bolhas de vapor, ousando aparecer no seio do líquido.\\n\\nÀ medida que mais calor entra, essas bolhas se tornam mais numerosas, maiores e mais ousadas. Elas sobem em uma coluna borbulhante, cada uma carregando consigo a promessa de transformação. Quando essas bolhas atingem a superfície, elas explodem em uma espetacular exibição de vapor, sinalizando a conquista final do calor sobre a estrutura líquida.\\n\\nNaquele momento, a água não é mais oprimida por sua forma líquida. Ela ascende, libertada, em uma nuvem de vapor, um testemunho do poder transformador do calor. É a ebulição, meu amigo, uma transformação dramática, uma libertação catártica!\\n'"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            }
+          },
+          "metadata": {},
+          "execution_count": 30
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "IVChe-CSAMu4"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ],
+  "metadata": {
+    "colab": {
+      "name": "Welcome To Colab",
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "display_name": "Python 3",
+      "name": "python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 0
+}
